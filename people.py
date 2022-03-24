@@ -19,13 +19,7 @@ class Cursor:
 
 def create_database():
     with Cursor() as cursor:
-        cursor.execute('CREATE TABLE IF NOT EXISTS people (id uuid, name text)')
-
-
-def exists(id):
-    with Cursor() as c:
-        results = c.execute('SELECT * FROM people WHERE id=:id', {"id": id}).fetchall()
-        return bool(results)
+        cursor.execute('CREATE TABLE IF NOT EXISTS people (id uuid, name text, UNIQUE(id))')
 
 
 def insert(id, name):
@@ -37,8 +31,10 @@ def read_and_insert():
     with open(FILENAME) as f:
         reader = csv.reader(f, delimiter=';', quotechar='"')
         for id, name in reader:
-            if not exists(id):
+            try:
                 insert(id, name)
+            except sqlite3.IntegrityError:
+                pass
 
 
 def main():
