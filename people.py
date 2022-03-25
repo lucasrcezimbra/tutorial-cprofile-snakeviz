@@ -22,19 +22,19 @@ def create_database():
         cursor.execute('CREATE TABLE IF NOT EXISTS people (id uuid, name text, UNIQUE(id))')
 
 
-def insert(id, name):
-    with Cursor() as c:
-        c.execute('INSERT INTO people VALUES (:id, :name)', {'id': id, 'name': name})
+def insert(cursor, id, name):
+    cursor.execute('INSERT INTO people VALUES (:id, :name)', {'id': id, 'name': name})
 
 
 def read_and_insert():
-    with open(FILENAME) as f:
-        reader = csv.reader(f, delimiter=';', quotechar='"')
-        for id, name in reader:
-            try:
-                insert(id, name)
-            except sqlite3.IntegrityError:
-                pass
+    with Cursor() as cursor:
+        with open(FILENAME) as f:
+            reader = csv.reader(f, delimiter=';', quotechar='"')
+            for id, name in reader:
+                try:
+                    insert(cursor, id, name)
+                except sqlite3.IntegrityError:
+                    pass
 
 
 def main():
